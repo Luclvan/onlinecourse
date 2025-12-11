@@ -29,7 +29,7 @@ class CourseController {
         // ... (Kiểm tra quyền như trên) ...
 
         $categoryModel = new Category();
-        $categories = $categoryModel->getAll(); // Lấy danh mục để đổ vào <select>
+        $categories = $categoryModel->getAll(); 
 
         require 'views/instructor/course/create.php';
     }
