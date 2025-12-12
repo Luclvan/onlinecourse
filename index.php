@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-
+require "controllers/AdminController.php";
 require "controllers/AuthController.php";
 require "controllers/CourseController.php";
 $courseController = new CourseController();
@@ -69,6 +69,7 @@ $action = $_GET['action'] ?? 'home';
 
 $authController = new AuthController();
 $courseController = new CourseController();
+$admin = new AdminController();
 
 switch ($action) {
 
@@ -108,6 +109,38 @@ switch ($action) {
         requireRole([1, 2]);
         $courseController->store();
         break;
+        
+    case "admin_users":
+        requireRole([2]); // chỉ admin
+        $authController->adminUsers();
+        break;
+
+    case "admin_user_update":
+        requireRole([2]);
+        $authController->adminUserUpdate();
+        break;
+    case "admin_categories":
+        requireRole([2]);
+        $authController->adminCategories();
+        break;
+
+    case "admin_category_store":
+        requireRole([2]);
+        $authController->adminCategoryStore();
+        break;
+
+    case "admin_category_delete":
+        requireRole([2]);
+        $authController->adminCategoryDelete();
+        break;
+    case "admin_statistics":
+        requireRole([2]);
+        $admin->statistics();
+        break;
+
+
+
+
 
     /* ===== DEFAULT ===== */
     default:

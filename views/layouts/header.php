@@ -38,14 +38,13 @@ $user = $_SESSION['user'] ?? null;
                 <?php endif; ?>
 
                 <!-- ADMIN -->
-                <?php if ($user['role'] == 2): ?>
-                    <a href="index.php?action=instructor_courses" class="btn btn-outline">
-                        Quản lý khóa học
-                    </a>
-                    <a href="index.php?action=admin_dashboard" class="btn btn-outline">
-                        Admin
-                    </a>
+                <?php if ($user && $user['role'] == 2): ?>
+                    <a href="index.php?action=admin_users" class="btn btn-outline">Users</a>
+                    <a href="index.php?action=admin_categories" class="btn btn-outline">Categories</a>
+                    <a href="index.php?action=admin_statistics" class="btn btn-outline">Thống kê</a>
                 <?php endif; ?>
+
+
 
                 <span class="nav-user">
                     Xin chào, <strong><?= htmlspecialchars($user['fullname']) ?></strong>
