@@ -7,7 +7,6 @@ class CourseController {
     
     // Hiển thị danh sách khóa học của giảng viên (Read)
     public function index() {
-        session_start();
         // Kiểm tra quyền: Phải đăng nhập và là Giảng viên (role = 1) [cite: 28]
         if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 1) {
             header('Location: /login');
@@ -27,7 +26,10 @@ class CourseController {
     public function create() {
         session_start();
         // ... (Kiểm tra quyền như trên) ...
-
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 1) {
+            header('Location: /login');
+            exit();
+        }
         $categoryModel = new Category();
         $categories = $categoryModel->getAll(); 
 
