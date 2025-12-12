@@ -32,12 +32,19 @@ class AuthController {
 
         $user = $userModel->checkLogin($email, $password);
 
+        $user = $userModel->checkLogin($email, $password);
+
+        if ($user === "DISABLED") {
+            die("Tài khoản đã bị vô hiệu hóa");
+        }
+
         if ($user) {
             $_SESSION["user"] = $user;
             header("Location: index.php?action=home");
         } else {
             echo "Sai tài khoản hoặc mật khẩu";
         }
+
     }
 
     public function logout() {

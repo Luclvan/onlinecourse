@@ -25,17 +25,48 @@ class User {
     }
 
     public function checkLogin($email, $password) {
-        $sql = "SELECT * FROM $this->table WHERE email = :email LIMIT 1";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([":email" => $email]);
+    $sql = "SELECT * FROM $this->table WHERE email = :email LIMIT 1";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([":email" => $email]);
 
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$user) return false;
 
-        if (!$user) return false;
-
-        if (password_verify($password, $user["password"])) {
-            return $user;
-        }
-        return false;
+    // NEW: chặn user bị vô hiệu hóa
+    if (isset($user['is_active']) && (int)$user['is_active'] === 0) {
+        return "DISABLED";
     }
+
+    if (password_verify($password, $user["password"])) {
+        return $user;
+    }
+    return false;
+    }   
+    public function getAllUsers() {
+    $sql = "SELECT id, username, email, fullname, role, is_active, created_at
+            FROM $this->table
+            ORDER BY created_at DESC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function setActive($id, $is_active) {
+        $sql = "UPDATE $this->table SET is_active = :is_active WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':is_active' => (int)$is_active,
+            ':id' => (int)$id
+        ]);
+    }
+
+    public function updateRole($id, $role) {
+        $sql = "UPDATE $this->table SET role = :role WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':role' => (int)$role,
+            ':id' => (int)$id
+        ]);
+    }
+
 }

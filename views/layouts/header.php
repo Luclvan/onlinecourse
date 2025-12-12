@@ -22,14 +22,44 @@ $user = $_SESSION['user'] ?? null;
             <a href="index.php" class="nav-link">Trang chủ</a>
 
             <?php if ($user): ?>
+
+                <!-- HỌC SINH -->
+                <?php if ($user['role'] == 0): ?>
+                    <a href="index.php?action=student_dashboard" class="btn btn-outline">
+                        Trang học viên
+                    </a>
+                <?php endif; ?>
+
+                <!-- GIÁO VIÊN -->
+                <?php if ($user['role'] == 1): ?>
+                    <a href="index.php?action=instructor_courses" class="btn btn-outline">
+                        Quản lý khóa học
+                    </a>
+                <?php endif; ?>
+
+                <!-- ADMIN -->
+                <?php if ($user['role'] == 2): ?>
+                    <a href="index.php?action=instructor_courses" class="btn btn-outline">
+                        Quản lý khóa học
+                    </a>
+                    <a href="index.php?action=admin_dashboard" class="btn btn-outline">
+                        Admin
+                    </a>
+                <?php endif; ?>
+
                 <span class="nav-user">
                     Xin chào, <strong><?= htmlspecialchars($user['fullname']) ?></strong>
-                    (role: <?= $user['role'] ?>)
                 </span>
-                <a href="index.php?action=logout" class="btn btn-outline">Đăng xuất</a>
+
+                <a href="index.php?action=logout" class="btn btn-primary">
+                    Đăng xuất
+                </a>
+
             <?php else: ?>
+
                 <a href="index.php?action=login" class="btn btn-outline">Đăng nhập</a>
                 <a href="index.php?action=register" class="btn btn-primary">Đăng ký</a>
+
             <?php endif; ?>
         </nav>
     </div>
