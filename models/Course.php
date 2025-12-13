@@ -73,4 +73,42 @@ class Course {
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => (int)$id]);
     }
+    // CHANGED: sửa $this->db thành $this->conn
+    public function getAllCourses() { // CHANGED
+        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} ORDER BY created_at DESC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // CHANGED: sửa $this->db thành $this->conn
+    public function searchCourses($keyword) { // CHANGED
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM {$this->table}
+             WHERE title LIKE :kw OR description LIKE :kw
+             ORDER BY created_at DESC"
+        );
+        $stmt->execute([':kw' => "%$keyword%"]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // Lấy chi tiết khóa học kèm tên giảng viên + tên danh mục
+public function getCourseDetail($id) {
+    $sql = "SELECT c.*,
+                u.fullname AS instructor_name,
+                cat.name AS category_name
+            FROM courses c
+            JOIN users u ON c.instructor_id = u.id
+            JOIN categories cat ON c.category_id = cat.id
+            WHERE c.id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Lấy danh sách bài học
+public function getCourseLessons($id) {
+    $sql = "SELECT * FROM lessons WHERE course_id = :id ORDER BY id ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
