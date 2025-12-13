@@ -1,4 +1,6 @@
 <?php
+define('BASE_URL', '/onlinecourse');
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -7,6 +9,7 @@ session_start();
 require "controllers/AdminController.php";
 require "controllers/AuthController.php";
 require "controllers/CourseController.php";
+require 'controllers/LessonController.php';
 $courseController = new CourseController();
 
 function requireLogin() {
@@ -138,10 +141,76 @@ switch ($action) {
         $admin->statistics();
         break;
 
+    // --- KHÓA HỌC (COURSES) ---
+    case 'course_index':
+        $controller = new CourseController();
+        $controller->index();
+        break;
+    case 'course_create':
+        $controller = new CourseController();
+        $controller->create();
+        break;
+    case 'course_store':
+        $controller = new CourseController();
+        $controller->store();
+        break;
+    
+    // 1. Form sửa khóa học
+    case 'course_edit':
+        $id = isset($_GET['id']) ? $_GET['id'] : die('Thiếu ID');
+        $controller = new CourseController();
+        $controller->edit($id);
+        break;
 
+    // 2. Xử lý cập nhật khóa học
+    case 'course_update':
+        $id = isset($_GET['id']) ? $_GET['id'] : die('Thiếu ID');
+        $controller = new CourseController();
+        $controller->update($id);
+        break;
 
+    // 3. Xử lý xóa khóa học
+    case 'course_delete':
+        $id = isset($_GET['id']) ? $_GET['id'] : die('Thiếu ID');
+        $controller = new CourseController();
+        $controller->delete($id);
+        break;
 
+    // --- BÀI HỌC (LESSONS)  ---
+    case 'lesson_index':
+        $course_id = isset($_GET['course_id']) ? $_GET['course_id'] : die('Thiếu ID khóa học');
+        $controller = new LessonController();
+        $controller->index($course_id);
+        break;
 
+    case 'lesson_create':
+        $course_id = isset($_GET['course_id']) ? $_GET['course_id'] : die('Thiếu ID khóa học');
+        $controller = new LessonController();
+        $controller->create($course_id);
+        break;
+
+    case 'lesson_store':
+        $controller = new LessonController();
+        $controller->store(); 
+
+    // 1. Vào trang sửa bài học
+    case 'lesson_edit':
+        $controller = new LessonController();
+        $controller->edit();
+        break;
+
+    // 2. Xử lý cập nhật sau khi sửa
+    case 'lesson_update':
+        $controller = new LessonController();
+        $controller->update();
+        break;
+
+    // 3. Xử lý xóa bài học
+    case 'lesson_delete':
+        $controller = new LessonController();
+        $controller->delete();
+        break;
+        
     /* ===== DEFAULT ===== */
     default:
         require "views/home/index.php";

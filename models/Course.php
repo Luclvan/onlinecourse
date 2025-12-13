@@ -65,7 +65,6 @@ class Course {
         return $stmt->execute([':id' => (int)$id]);
     }
 
-    /* (Optional) ADMIN: từ chối course */
     public function rejectCourse($id) {
         $sql = "UPDATE {$this->table}
                 SET status = 'rejected', updated_at = NOW()
@@ -73,42 +72,48 @@ class Course {
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => (int)$id]);
     }
-    // CHANGED: sửa $this->db thành $this->conn
-    public function getAllCourses() { // CHANGED
-        $stmt = $this->conn->prepare("SELECT * FROM {$this->table} ORDER BY created_at DESC");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    public function update($id, $title, $description, $category_id, $price, $level, $image) {
+        // Cập nhật thông tin cơ bản
+        $sql = "UPDATE " . $this->table . " 
+                SET title = :title, 
+                    description = :description, 
+                    category_id = :category_id, 
+                    price = :price, 
+                    level = :level, 
+                    updated_at = NOW()";
+
+        // Nếu có ảnh mới thì cập nhật thêm cột image
+        if ($image) {
+            $sql .= ", image = :image";
+        }
+
+        $sql .= " WHERE id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':level', $level);
+        $stmt->bindParam(':id', $id);
+
+        if ($image) {
+            $stmt->bindParam(':image', $image);
+        }
+
+        return $stmt->execute();
     }
 
-    // CHANGED: sửa $this->db thành $this->conn
-    public function searchCourses($keyword) { // CHANGED
-        $stmt = $this->conn->prepare(
-            "SELECT * FROM {$this->table}
-             WHERE title LIKE :kw OR description LIKE :kw
-             ORDER BY created_at DESC"
-        );
-        $stmt->execute([':kw' => "%$keyword%"]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    // Lấy chi tiết khóa học kèm tên giảng viên + tên danh mục
-public function getCourseDetail($id) {
-    $sql = "SELECT c.*,
-                u.fullname AS instructor_name,
-                cat.name AS category_name
-            FROM courses c
-            JOIN users u ON c.instructor_id = u.id
-            JOIN categories cat ON c.category_id = cat.id
-            WHERE c.id = :id";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute([':id' => $id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+    // Dán vào trong class Course (models/Course.php)
 
-// Lấy danh sách bài học
-public function getCourseLessons($id) {
-    $sql = "SELECT * FROM lessons WHERE course_id = :id ORDER BY id ASC";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute([':id' => $id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    public function delete($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        
+        return $stmt->execute();
+    }
 }
