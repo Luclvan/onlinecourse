@@ -65,12 +65,55 @@ class Course {
         return $stmt->execute([':id' => (int)$id]);
     }
 
-    /* (Optional) ADMIN: từ chối course */
     public function rejectCourse($id) {
         $sql = "UPDATE {$this->table}
                 SET status = 'rejected', updated_at = NOW()
                 WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':id' => (int)$id]);
+    }
+
+    public function update($id, $title, $description, $category_id, $price, $level, $image) {
+        // Cập nhật thông tin cơ bản
+        $sql = "UPDATE " . $this->table . " 
+                SET title = :title, 
+                    description = :description, 
+                    category_id = :category_id, 
+                    price = :price, 
+                    level = :level, 
+                    updated_at = NOW()";
+
+        // Nếu có ảnh mới thì cập nhật thêm cột image
+        if ($image) {
+            $sql .= ", image = :image";
+        }
+
+        $sql .= " WHERE id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':level', $level);
+        $stmt->bindParam(':id', $id);
+
+        if ($image) {
+            $stmt->bindParam(':image', $image);
+        }
+
+        return $stmt->execute();
+    }
+
+    // Dán vào trong class Course (models/Course.php)
+
+    public function delete($id) {
+        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+        
+        return $stmt->execute();
     }
 }
