@@ -69,6 +69,70 @@ class CourseController {
         }
     }
     
-    // ... Các hàm edit(), update(), delete() tương tự ...
+    public function edit($id) {
+        session_start();
+        $courseModel = new Course();
+        $course = $courseModel->getCourseById($id);
+
+        // BẢO MẬT: Kiểm tra xem khóa học có tồn tại và thuộc về giảng viên này không
+        if (!$course || $course['instructor_id'] != $_SESSION['user']['id']) {
+            die("Bạn không có quyền chỉnh sửa khóa học này!");
+        }
+
+        $categoryModel = new Category();
+        $categories = $categoryModel->getAll();
+
+        require 'views/instructor/course/edit.php';
+    }
+
+    // Xử lý cập nhật khóa học
+    public function update($id) {
+        session_start();
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Lấy lại thông tin cũ để check quyền
+            $courseModel = new Course();
+            $oldCourse = $courseModel->getCourseById($id);
+
+            if ($oldCourse['instructor_id'] != $_SESSION['user']['id']) {
+                die("Unauthorized!");
+            }
+
+            // Lấy dữ liệu từ form
+            $title = $_POST['title'];
+            $description = $_POST['description'];
+            $category_id = $_POST['category_id'];
+            $price = $_POST['price'];
+            $level = $_POST['level'];
+            
+            $imagePath = null;
+            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+                $targetDir = "uploads/courses/";
+                $fileName = time() . "_" . basename($_FILES["image"]["name"]);
+                move_uploaded_file($_FILES["image"]["tmp_name"], $targetDir . $fileName);
+                $imagePath = $fileName;
+            }
+
+            // Gọi Model update
+            if ($courseModel->update($id, $title, $description, $category_id, $price, $level, $imagePath)) {
+                header('Location: /instructor/courses?msg=updated');
+            } else {
+                echo "Lỗi cập nhật!";
+            }
+        }
+    }
+
+    public function delete($id) {
+        session_start();
+        $courseModel = new Course();
+        $course = $courseModel->getCourseById($id);
+
+        // Check quyền sở hữu
+        if ($course && $course['instructor_id'] == $_SESSION['user']['id']) {
+            $courseModel->delete($id);
+            header('Location: /instructor/courses?msg=deleted');
+        } else {
+            die("Bạn không có quyền xóa khóa học này!");
+        }
+    }
 }
 ?>
