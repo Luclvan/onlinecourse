@@ -25,10 +25,11 @@ $user = $_SESSION['user'] ?? null;
 
                 <!-- HỌC SINH -->
                 <?php if ($user['role'] == 0): ?>
-                    <a href="index.php?action=student_dashboard" class="btn btn-outline">
-                        Trang học viên
+                    <a href="index.php?action=courses" class="btn btn-outline">
+                        Tìm khóa học
                     </a>
                 <?php endif; ?>
+
 
                 <!-- GIÁO VIÊN -->
                 <?php if ($user['role'] == 1): ?>
