@@ -16,7 +16,7 @@
             </p>
 
             <p class="course-meta">
-                Thời lượng: <?= $course['duration'] ?> • 
+                Thời lượng: <?= $course['duration_weeks'] ?> • 
                 Giá: <?= number_format($course['price']) ?>đ
             </p>
 

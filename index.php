@@ -9,7 +9,9 @@ session_start();
 require "controllers/AdminController.php";
 require "controllers/AuthController.php";
 require "controllers/CourseController.php";
-require 'controllers/LessonController.php';
+require "controllers/EnrollmentController.php";
+
+$enrollmentController = new EnrollmentController();
 $courseController = new CourseController();
 
 function requireLogin() {
@@ -69,6 +71,7 @@ function requireRole($roles) {
         
 // }
 $action = $_GET['action'] ?? 'home';
+
 
 $authController = new AuthController();
 $courseController = new CourseController();
@@ -139,6 +142,23 @@ switch ($action) {
     case "admin_statistics":
         requireRole([2]);
         $admin->statistics();
+        break;
+    /* ===== STUDENT ===== */
+    case 'courses':
+        $courseController->listForStudent();
+        break;
+
+    case 'course_detail':
+        $courseController->detailForStudent();
+        break;
+
+    case 'enroll':
+        requireLogin();
+        $controller = new EnrollmentController();
+        $course_id = $_GET['id'] ?? null;
+        if ($course_id) {
+            $controller->enroll($course_id);
+        }
         break;
 
     // --- KHÓA HỌC (COURSES) ---
@@ -213,6 +233,6 @@ switch ($action) {
         
     /* ===== DEFAULT ===== */
     default:
-        require "views/home/index.php";
-        break;
+    $courseController->home();
+    break;
 }

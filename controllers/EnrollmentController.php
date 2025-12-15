@@ -1,40 +1,35 @@
 <?php
+require_once 'models/Enrollment.php';
+
 class EnrollmentController {
 
     public function enroll($course_id) {
-        session_start();
-        if (!isset($_SESSION["user"])) {
-            header("Location: /auth/login");
+
+        // 1. Kiểm tra đăng nhập
+        if (!isset($_SESSION['user'])) {
+            header("Location: index.php?action=login");
             exit;
         }
 
-        $student_id = $_SESSION["user"]["id"];
-
-        require_once "./models/Enrollment.php";
-        require_once "./config/Database.php";
-
-        $db = (new Database())->connect();
-        $model = new Enrollment($db);
-
-        if ($model->enroll($course_id, $student_id)) {
-            header("Location: /student/my_courses");
-        } else {
-            echo "Bạn đã đăng ký khóa học này!";
+        // 2. Chỉ học viên được đăng ký
+        if ($_SESSION['user']['role'] != 0) {
+            die("Chỉ học viên mới được đăng ký khóa học");
         }
-    }
 
-    public function myCourses() {
-        session_start();
-        $student_id = $_SESSION["user"]["id"];
+        $student_id = $_SESSION['user']['id'];
+        $enrollmentModel = new Enrollment();
 
-        require_once "./models/Enrollment.php";
-        require_once "./config/Database.php";
+        // 3. Kiểm tra trùng
+        if ($enrollmentModel->isEnrolled($student_id, $course_id)) {
+            header("Location: index.php?action=course_detail&id=$course_id&msg=exists");
+            exit;
+        }
 
-        $db = (new Database())->connect();
-        $model = new Enrollment($db);
+        // 4. Đăng ký
+        $enrollmentModel->enroll($student_id, $course_id);
 
-        $myCourses = $model->getMyCourses($student_id);
-
-        require "./views/student/my_courses.php";
+        // 5. Quay lại chi tiết khóa học
+        header("Location: index.php?action=course_detail&id=$course_id&msg=success");
+        exit;
     }
 }

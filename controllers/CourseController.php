@@ -134,4 +134,36 @@
             }
         }
     }
-    ?>
+    
+    // ... Các hàm edit(), update(), delete() tương tự ...
+    public function listForStudent() {
+    $courseModel = new Course();
+
+    if (!empty($_GET['keyword'])) {
+        $courses = $courseModel->searchCourses($_GET['keyword']);
+    } else {
+        $courses = $courseModel->getAllCourses();
+    }
+
+    require 'views/courses/index.php';
+}
+
+// chi tiết khóa học
+public function detailForStudent() {
+    $id = $_GET['id'] ?? 0;
+    $courseModel = new Course();
+
+    $course = $courseModel->getCourseDetail($id);
+    $lessons = $courseModel->getCourseLessons($id);
+
+    require __DIR__ . '/../views/courses/detail.php';    
+    }
+    // Trang home cho sinh viên
+public function home() {
+    $courseModel = new Course();
+    $courses = $courseModel->getAllCourses();
+    require __DIR__ . '/../views/home/index.php';
+}
+
+}
+?>
